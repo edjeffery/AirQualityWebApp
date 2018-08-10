@@ -1,0 +1,12 @@
+name: airquality
+title:
+username:
+account: airqualitybath
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 374632
+bundleId: 1528775
+url: https://airqualitybath.shinyapps.io/airquality/
+when: 1533914106.88818
+asMultiple: FALSE
+asStatic: FALSE
