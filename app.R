@@ -30,6 +30,9 @@ data$period <- ifelse(data$am == TRUE, paste(data$day, "am", sep = "_"), paste(d
 #rawData$timediff <- diff(rawData$time)
 data$weekend <- ifelse(data$day == "Saturday" | data$day == "Sunday", "weekend", "week")
 data$week_period <- ifelse(data$am == TRUE, paste(data$weekend, "am", sep = "_"), paste(data$weekend, "pm", sep = "_"))
+data$outlier_pm <- (data$pm_raw > 350)
+data$outlier_mq131 <- (data$pm_raw > 5 | data$pm_raw < 1)
+data$outlier_mq135 <- (data$pm_raw > 5 | data$pm_raw < 0.1)
 
 
 #data = read.csv("data/air-quality-dataset-2018-07-06.csv")  # read csv file 
