@@ -31,17 +31,14 @@ data$period <- ifelse(data$am == TRUE, paste(data$day, "am", sep = "_"), paste(d
 data$weekend <- ifelse(data$day == "Saturday" | data$day == "Sunday", "weekend", "week")
 data$week_period <- ifelse(data$am == TRUE, paste(data$weekend, "am", sep = "_"), paste(data$weekend, "pm", sep = "_"))
 data$outlier_pm <- (data$pm_raw > 350)
-data$outlier_mq131 <- (data$pm_raw > 5 | data$pm_raw < 1)
-data$outlier_mq135 <- (data$pm_raw > 5 | data$pm_raw < 0.1)
+data$outlier_mq131 <- (data$mq131 > 5 | data$mq131 < 1)
+data$outlier_mq135 <- (data$mq135 > 5 | data$mq135 < 0.1)
 
 
 #data = read.csv("data/air-quality-dataset-2018-07-06.csv")  # read csv file 
 map_data <- data[, c("longitude", "latitude", "mq131")]
 
-#minDate <- anydate(min(data$time))
-#maxDate <- anydate(max(data$time))
 maxDate = max(data$date)
-
 dates = unique(data$date)
 
 # Define UI
@@ -78,10 +75,11 @@ ui <- fluidPage(theme = shinytheme("yeti"),
                                  "Particulates (PM10)" = "pm_raw"),
                      selected = "mq131"),
         
-        h4("Outliers"),
+        h4("Outliers:"),
         
         checkboxInput(inputId = "outliers",
-                      label = "Include outliers?"),
+                      label = "Remove outliers?",
+                      value = FALSE),
         
         br(),
         h4("Information"),
@@ -159,6 +157,12 @@ server <- function(input, output) {
       filtered_data <- filtered_data[filtered_data$am == TRUE,]
     } else if (input$AMorPMradio == "PM") {
       filtered_data <- filtered_data[filtered_data$am == FALSE,]
+    }
+    # Filter for outliers
+    if (input$outliers == TRUE) {
+      filtered_data <- filtered_data[filtered_data$outlier_pm == FALSE &
+                                       filtered_data$outlier_mq131 == FALSE &
+                                       filtered_data$outlier_mq135 == FALSE,]
     }
     # Filter for selected pollutant
     if (input$pollutants_radio == "mq131") {
@@ -261,7 +265,7 @@ server <- function(input, output) {
     values = c(mean, sd, median, mad, iqr, max, min)
     df <- data.frame(labels, values)
     colnames(df) <- c("Statistic", "Value")
-    df
+    t(df)
   })
   
 }
