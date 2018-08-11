@@ -197,7 +197,7 @@ server <- function(input, output) {
     d <- data.frame(x, y)
     ggplot(data = d, aes(x = x, y = y)) +
       geom_point() +
-      xlab("Altitude") +
+      xlab("Speed (m/s)") +
       ylab("Measurement") +
       geom_smooth(method='lm')
   })
@@ -254,18 +254,16 @@ server <- function(input, output) {
     filteredData <- selectedPollutantData()
     pollutant <- input$pollutants_radio
     p_data <- filteredData[, c(pollutant)]
-    labels = c("Mean", "Std. dev.", "Median", "MAD", "IQR", "Max", "Min")
-    mean = mean(p_data)
-    sd = sd(p_data)
-    median = median(p_data)
-    mad = mad(p_data)
-    iqr = IQR(p_data)
-    max = max(p_data)
-    min = min(p_data)
-    values = c(mean, sd, median, mad, iqr, max, min)
-    df <- data.frame(labels, values)
-    colnames(df) <- c("Statistic", "Value")
-    t(df)
+    #labels = c("Mean", "Std. dev.", "Median", "MAD", "IQR", "Max", "Min")
+    Mean = mean(p_data)
+    Std_Dev = sd(p_data)
+    Median = median(p_data)
+    MAD = mad(p_data)
+    IQR = IQR(p_data)
+    Max = max(p_data)
+    Min = min(p_data)
+    #values = c(Mean, Std_Dev, Median, MAD, IQR, Max, Min)
+    df <- data.frame(Mean, Std_Dev, Median, MAD, IQR, Max, Min)
   })
   
 }
