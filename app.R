@@ -35,8 +35,11 @@ data$week_period <- ifelse(data$am == TRUE, paste(data$weekend, "am", sep = "_")
 #data = read.csv("data/air-quality-dataset-2018-07-06.csv")  # read csv file 
 map_data <- data[, c("longitude", "latitude", "mq131")]
 
-minDate <- anydate(min(data$time))
-maxDate <- anydate(max(data$time))
+#minDate <- anydate(min(data$time))
+#maxDate <- anydate(max(data$time))
+maxDate = max(data$date)
+
+dates = unique(data$date)
 
 # Define UI
 ui <- fluidPage(theme = shinytheme("yeti"),
@@ -54,27 +57,19 @@ ui <- fluidPage(theme = shinytheme("yeti"),
    # Sidebar with a slider input for number of bins 
    sidebarLayout(
       sidebarPanel(width = 3,
-        # dateRangeInput(inputId = "daterange",
-        #                label = h4("Date range:"),
-        #                start  = minDate,
-        #                end    = maxDate,
-        #                min    = minDate,
-        #                max    = maxDate,
-        #                format = "yyyy-mm-dd",
-        #                separator = " - "),
         
-        selectInput(inputId = "date",
-                    label = h4("Select date"),
-                    choices = data$date,
-                    selected = anydate("2018-08-10")),
+        selectizeInput(inputId = "date",
+                    label = h4("Select date:"),
+                    choices = dates,
+                    selected = max(data$date)),
         
         radioButtons(inputId = "AMorPMradio",
-                     label = h4("Morning or Evening"),
+                     label = h4("Morning or Evening:"),
                      choices = list("AM","PM"),
                      selected = "AM"),
         
         radioButtons(inputId = "pollutants_radio",
-                     label = h4("Pollutants"),
+                     label = h4("Choose pollutant:"),
                      choices = c("Ozone (MQ131)" = "mq131",
                                  "Harmful gases (MQ135)" = "mq135",
                                  "Particulates (PM10)" = "pm_raw"),
@@ -148,14 +143,13 @@ ui <- fluidPage(theme = shinytheme("yeti"),
 server <- function(input, output) {
   
   selectedPollutantData <- reactive({
-    #req(input$daterange)
-    #date_filtered_data <- data[anydate(data$time) >= input$daterange[1] & anydate(data$time) <= input$daterange[2],]
+    
     req(input$date)
     req(input$pollutants_radio)
     req(input$AMorPMradio)
     
     # Filter for selected date
-    filtered_data <- data[data$date == anydate(input$date),]
+    filtered_data <- data[data$date == input$date,]
     
     # Filter for morning or afternoon collection run
     if (input$AMorPMradio == "AM") {
@@ -179,7 +173,7 @@ server <- function(input, output) {
     x <- anytime(filteredData$time)
     y <- filteredData[, c(pollutant)]
     d <- data.frame(x, y)
-    #plot(x, y, xlab = "Time", ylab = "Sensor voltage")
+    
     ggplot(data = d, aes(x = x, y = y)) +
       geom_point() +
       xlab("Time") +
@@ -199,11 +193,6 @@ server <- function(input, output) {
       xlab("Altitude") +
       ylab("Measurement") +
       geom_smooth(method='lm')
-    #plot(x, y, xlab = "Speed", ylab = "Measurement")
-    #model <- lm(y ~ x)
-    #abline(model, col = "red")
-    #summary(model)
-    #paste('y =', coef(model)[[2]], '* x', '+', coef(model)[[1]])
   })
   
   output$altitudePlot <- renderPlot({
@@ -217,9 +206,6 @@ server <- function(input, output) {
       xlab("Altitude") +
       ylab("Measurement") +
       geom_smooth(method='lm')
-    #x <- data$altitude
-    #y <- data$mq131
-    #plot(x, y, xlab = "Altitude", ylab = "Sensor voltage")
   })
   
   output$mapPlot <- renderPlot({
@@ -272,8 +258,6 @@ server <- function(input, output) {
     values = c(mean, sd, median, mad, iqr, max, min)
     df <- data.frame(labels, values)
     colnames(df) <- c("Statistic", "Value")
-    #d = as.table(setNames(labels, values))
-    #print(d)
     df
   })
   
